@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<meta name="robots" content="all">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="mobile-agent" content="format=html5;url=http://ccx01.com">
+		<meta name="applicable-device" content="mobile">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name ="keywords" content="Sign,ccx01,sign,the day of sign,signXday,沙因,游戏">
+		<meta name="description" content="合到10游戏dom版">
+		<title>get10</title>
+		<style type="text/css">
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.stage {
+				position: relative;
+			    width: 550px;
+			    height: 550px;
+			    margin: 100px auto;
+			    background: #eee;
+			}
+			.box {
+				position: absolute;
+				width: 20%;
+				height: 20%;
+				border: 1px solid #ccc;
+				box-sizing: border-box;
+			}
+			.box[data-on="1"] {
+				-webkit-transform:translateY(-6px);
+				transform:translateY(-6px);
+				box-shadow: 0px 6px 0px rgba(0,0,0,0.3);
+			}
+			.box[data-v="1"] {
+				background: #B9F349;
+			}
+			.box[data-v="2"] {
+				background: #56C0FC;
+			}
+			.box[data-v="3"] {
+				background: #FFC85B;
+			}
+			.box[data-v="4"] {
+				background: #FF7255;
+			}
+			.r0 {
+				top: 0;
+			}
+			.r1 {
+				top: 20%;
+			}
+			.r2 {
+				top: 40%;
+			}
+			.r3 {
+				top: 60%;
+			}
+			.r4 {
+				top: 80%;
+			}
+			.c0 {
+				left: 0;
+			}
+			.c1 {
+				left: 20%;
+			}
+			.c2 {
+				left: 40%;
+			}
+			.c3 {
+				left: 60%;
+			}
+			.c4 {
+				left: 80%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="loading">
+			<div class="ball"></div>
+		</div>
+		<div class="stage">
+			<div class="r0 c0"></div>
+		</div>
+
+		<script>
+			function getV() {
+				var v = 1;
+				if(Math.random() < 0.05) {
+					v = 4;
+				} else if(Math.random() < 0.2) {
+					v = 3;
+				} else if(Math.random() < 0.5) {
+					v = 2;
+				}
+				return v;
+			}
+
+			// 位置存储
+			// 按列存储
+			var box_data = [ [], [], [], [], [] ];
+
+			// 被选中的数据
+			var box_check = [ [], [], [], [], [] ];
+
+			function around(r, c, v) {
+				if(r > 0) {
+					var r1 = Math.round(r) - 1;
+					var box = document.querySelector(".r" + r1 + ".c" + c);
+					if(box.dataset.v == v && box.dataset.on == 0) {
+						box.dataset.on = 1;
+						// box_check.push([r1,c]);
+						// box_check[c] = box_check[c] || [];
+						box_check[c].push(r1);
+
+						around(r1, c, v);
+					}
+				}
+				if(r < 4) {
+					var r1 = Math.round(r) + 1;
+					var box = document.querySelector(".r" + r1 + ".c" + c);
+					if(box.dataset.v == v && box.dataset.on == 0) {
+						box.dataset.on = 1;
+						// box_check.push([r1,c]);
+						// box_check[c] = box_check[c] || [];
+						box_check[c].push(r1);
+
+						around(r1, c, v);
+					}
+				}
+				if(c > 0) {
+					var c1 = Math.round(c) - 1;
+					var box = document.querySelector(".r" + r + ".c" + c1);
+					if(box.dataset.v == v && box.dataset.on == 0) {
+						box.dataset.on = 1;
+						// box_check.push([r,c1]);
+						// box_check[c1] = box_check[c1] || [];
+						box_check[c1].push(r);
+
+						around(r, c1, v);
+					}
+				}
+				if(c < 4) {
+					var c1 = Math.round(c) + 1;
+					var box = document.querySelector(".r" + r + ".c" + c1);
+					if(box.dataset.v == v && box.dataset.on == 0) {
+						box.dataset.on = 1;
+						// box_check.push([r,c1]);
+						// box_check[c1] = box_check[c1] || [];
+						box_check[c1].push(r);
+
+						around(r, c1, v);
+					}
+				}
+			}
+
+			var $stage = document.querySelector(".stage");
+			function sBox(e) {
+				var r = e.dataset.r;
+				var c = e.dataset.c;
+				var v = e.dataset.v;
+				if(e.dataset.on == 1) {
+					// 已激活
+					for (var i = 0; i < box_check.length; i++) {
+						for (var j = 0; j < box_check[i].length; j++) {
+							var box = document.querySelector(".r" + box_check[i][j] + ".c" + i);
+							if(r == box_check[i][j] && c == i) {
+								box.innerHTML = Math.round(box.innerHTML) + 1;
+								box.dataset.v = Math.round(box.dataset.v) + 1;
+								box.dataset.on = 0;
+							} else {
+
+								$stage.removeChild(box);
+							}
+						}
+					};
+					box_check = [ [], [], [], [], [] ];
+				} else {
+					// 未激活
+					for (var i = 0; i < box_check.length; i++) {
+						for (var j = 0; j < box_check[i].length; j++) {
+							var box = document.querySelector(".r" + box_check[i][j] + ".c" + i);
+							box.dataset.on = 0;
+						}
+					};
+
+					box_check = [ [], [], [], [], [] ];
+					box_check[c] = [r];
+
+					e.dataset.on = 1;
+					// e.innerHTML = "on";
+					around(r, c, v);
+
+				}
+			}
+
+
+			// init
+			var box = "";
+			for (var r = 0; r < 5; r++) {
+				var row = "r" + r;
+				for (var c = 0; c < 5; c++) {
+					var col = "c" + c;
+					var i = r * 5 + c;
+					var v = getV();
+					box += '<div data-v="' + v + '" data-r="' + r + '" data-c="' + c + '" data-on="0" class="box ' + row + ' ' + col + '" onclick="sBox(this)">' + v + '</div>';
+
+					box_data[c][r] = {
+						on: 0,
+						v: v
+					};
+				};
+			};
+
+			document.querySelector(".stage").innerHTML = box;
+
+		</script>
+	</body>
+</html>

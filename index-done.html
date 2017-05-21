@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<meta name="robots" content="all">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="mobile-agent" content="format=html5;url=http://ccx01.com">
+		<meta name="applicable-device" content="mobile">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name ="keywords" content="Sign,ccx01,sign,the day of sign,signXday,沙因,游戏">
+		<meta name="description" content="合到10游戏dom版">
+		<title>合到10 dom版</title>
+		<style type="text/css">
+
+			html,body{height:100%;margin:0;padding:0;overflow:hidden;font-family:impact,"Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;}
+			.stage{position:relative;width:550px;height:550px;width:100vw;height:100vw;margin:0 auto;background:#eee;-webkit-user-select:none;font-weight:bold;}
+			.box{position:absolute;width:20%;height:20%;box-sizing:border-box;transition-property:left,transform;transition-duration:0.2s,0.2s;transition-timing-function:linear;z-index:9;font-size:40px;font-size:10vw;text-align:center;line-height:80px;line-height:20vw;background-color:#553B93;color:#346DC3;}
+			.box[data-on="1"]{-webkit-transform:translateY(-6px);transform:translateY(-6px);box-shadow:0px 6px 0px rgba(0,0,0,0.3);background-image:-webkit-gradient(linear,0 100%,100% 0,color-stop(.25,rgba(255,255,255,.2)),color-stop(.25,transparent),color-stop(.5,transparent),color-stop(.5,rgba(255,255,255,.2)),color-stop(.75,rgba(255,255,255,.2)),color-stop(.75,transparent),to(transparent));background-image:-moz-linear-gradient(45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent);background-image:-o-linear-gradient(45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent);background-image:linear-gradient(45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent);}
+			.box[data-on="3"]{transform:translateX(200%);}
+			.box[data-on="2"]{transition-property:left,top,opacity;transition-duration:0.2s,0.2s,0.1s;transition-delay:0s,0s,0.2s;transition-timing-function:linear;z-index:0;opacity:0;}
+			.box[data-v="1"]{background-color:#B9F349;color:#39AB09;}
+			.box[data-v="2"]{background-color:#56C0FC;color:#0885FD;}
+			.box[data-v="3"]{background-color:#FFC85B;color:#F97719;}
+			.box[data-v="4"]{background-color:#FF7255;color:#FFD099;}
+			.box[data-v="5"]{background-color:#009E86;color:#79E797;}
+			.box[data-v="6"]{background-color:#7762FB;color:#CFBFFD;}
+			.box[data-v="7"]{background-color:#F657C3;color:#FB76BF;}
+			.box[data-v="8"]{background-color:#E62F46;color:#FED0B2;}
+			.box[data-v="9"]{background-color:#FFF733;color:#D15830;}
+			.box[data-v="10"]{background-color:#C43142;color:#FFFDFD;}
+			.r0{top:0;}
+			.r1{top:20%;}
+			.r2{top:40%;}
+			.r3{top:60%;}
+			.r4{top:80%;}
+			.c0{left:0;}
+			.c1{left:20%;}
+			.c2{left:40%;}
+			.c3{left:60%;}
+			.c4{left:80%;}
+			.mask{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);box-sizing:border-box;z-index:99;font-size:30px;text-align:center;color:#fff;padding-top:30%;}
+			.mask p{font-size:60px;}
+			.mask a{color:#fff;border:1px solid;padding:10px;text-decoration:none;}
+			.brief{padding:30px;font-size:18px;text-align:center;font-family:"Helvetica Neue",Helvetica;}
+			@media screen and (min-width:600px){
+				.stage{width:550px;height:550px;}
+				.box{font-size:40px;line-height:110px;}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="brief">合并方块，得到更高的数字</div>
+		<div class="stage"></div>
+		<div class="mask">
+			<div class="txt"></div>
+			<a href="javascript:start();">再来一次</a>
+		</div>
+		<div class="brief">本游戏仅个人兴趣作品，请勿用于商业目的</div>
+		<script>
+
+			function popup() {
+				document.querySelector(".mask").style.display = "block";
+				document.querySelector(".mask .txt").innerHTML = "恭喜你最高合成了<br>" + "<p>" + max_v + "</p>";
+			}
+
+			function getV() {
+				var v = 1;
+				if(Math.random() < 0.05) {
+					v = 4;
+				} else if(Math.random() < 0.2) {
+					v = 3;
+				} else if(Math.random() < 0.5) {
+					v = 2;
+				}
+				return v;
+			}
+			function getObjLen(obj) {
+				var n = 0;
+				for (var k in obj) {
+					n++;
+				};
+				return n;
+			}
+
+			// 位置存储
+			// 按列存储
+			var box = "";
+			var box_data = [ [], [], [], [], [] ];
+			// 换位前的数据
+			var box_data_last = [ [], [], [], [], [] ];
+			var set = 0;
+			var set_num = {};
+			var max_v = 4;
+
+
+			var $stage = document.querySelector(".stage");
+
+			// init
+			function initBox(arr) {
+				set = 0;
+				set_num = {};
+				box = "";
+				for (var i = 0; i < arr.length; i++) {
+					for (var j = 0; j < arr[i].length; j++) {
+						set++;
+						around (i, j, arr[i][j].v);
+						box += '<div data-set="' + arr[i][j].set + '" data-v="' + arr[i][j].v + '" data-r="' + arr[i][j].r + '" data-c="' + arr[i][j].c + '" data-on="' + arr[i][j].on + '" class="box r' + arr[i][j].r + ' c' + arr[i][j].c + '" onclick="sBox(this)">' + arr[i][j].v + '</div>';
+					};
+				};
+				if(getObjLen(set_num) >= 25) {
+					popup();
+				}
+
+				$stage.innerHTML = box;
+				setTimeout(moveBox, 10);
+			}
+			function moveBox() {
+				var $on3 = document.querySelectorAll('.box[data-on="3"]');
+				for (var i = 0; i < $on3.length; i++) {
+					$on3[i].dataset.on = 0;
+				};
+			}
+			function moveBox2(r, c) {
+				var $on2 = document.querySelectorAll('.box[data-on="2"]');
+				for (var i = 0; i < $on2.length; i++) {
+					$on2[i].className = "box r" + r + " c" + c;
+				};
+			}
+
+			// 扫描数据，归类
+			function around (r, c, v) {
+				if(box_data[r][c].set) return;
+				set_num[set] = set;
+				// 选择周围相同值
+				box_data[r][c].set = set;
+
+				// 左侧
+				if(c > 0) {
+					var c1 = Math.round(c) - 1;
+					if(box_data[r][c1].v == v) {
+						around(r, c1, v);
+					}
+				}
+				// 右侧
+				if(c < 4) {
+					var c2 = Math.round(c) + 1;
+					if(box_data[r][c2].v == v) {
+						around(r, c2, v);
+					}
+				}
+				// 上侧
+				if(r > 0) {
+					var r1 = Math.round(r) - 1;
+					if(box_data[r1][c].v == v) {
+						around(r1, c, v);
+					}
+				}
+				// 下侧
+				if(r < 4) {
+					var r2 = Math.round(r) + 1;
+					if(box_data[r2][c].v == v) {
+						around(r2, c, v);
+					}
+				}
+			}
+
+
+			function sBox(e) {
+				var r = e.dataset.r | 0;
+				var c = e.dataset.c | 0;
+				var v = e.dataset.v | 0;
+				var s = e.dataset.set | 0;
+
+				if(box_data[r][c].on != 1) {
+					// 未激活
+					var set_count = 0;
+					for (var i = 0; i < box_data.length; i++) {
+						for (var j = 0; j < box_data[i].length; j++) {
+							var on = box_data[i][j].set == s ? 1 : 0;
+							if(on == 1) {
+								set_count++;
+							}
+							box_data[i][j].on = on;
+							document.querySelector(".r" + i + ".c" + j).dataset.on = on;
+						};
+					};
+					// 如果格子小于2个，则不激活浮起
+					if(set_count < 2) {
+						for (var i = 0; i < box_data.length; i++) {
+							for (var j = 0; j < box_data[i].length; j++) {
+								box_data[i][j].on = 0;
+								document.querySelector(".r" + i + ".c" + j).dataset.on = 0;
+							};
+						};
+					}
+				} else {
+					// 已激活
+					for (var i = 0; i < box_data.length; i++) {
+						for (var j = 0; j < box_data[i].length; j++) {
+							var on = box_data[i][j].set == s ? 2 : 0;
+							if(i == r && j == c) {
+								on = 0;
+								box_data[i][j].v += 1;
+								max_v = Math.max(box_data[i][j].v, max_v);
+								document.querySelector(".r" + i + ".c" + j).dataset.v = box_data[i][j].v;
+								document.querySelector(".r" + i + ".c" + j).innerHTML = box_data[i][j].v;
+							}
+							box_data[i][j].on = on;
+							document.querySelector(".r" + i + ".c" + j).dataset.on = on;
+
+						};
+					};
+					moveBox2(r, c);
+					setTimeout(sortBox, 200);
+					setTimeout(function(){initBox(box_data);},500);
+				}
+			}
+
+			function sortBox () {
+				// 消除合并格子
+				for (var i = 0; i < box_data.length; i++) {
+					var j = 0;
+					while(box_data[i][j]) {
+						// 移动位置
+						var $rc = document.querySelector(".r" + box_data[i][j].r + ".c" + box_data[i][j].c + ".box[data-on='0']");
+						if($rc && $rc.dataset.on == 0) {
+							$rc.className = "box r" + i + " c" + j;
+						}
+						if(box_data[i][j].on == 2) {
+							box_data[i].splice(j, 1);
+						} else {
+							j++;
+						}
+					}
+
+					for (var k = 0; k < 5; k++) {
+						if(!box_data[i][k]) {
+							// 补充格子
+							var v = getV();
+							box_data[i][k] = {
+								on: 3,
+								v: v,
+								r: i,
+								c: k,
+								set: 0
+							};
+						} else {
+							// 原格子换位
+							box_data[i][k] = {
+								on: 0,
+								v: box_data[i][k].v,
+								r: i,
+								c: k,
+								set: 0
+							};
+						}
+					};
+				};
+
+			}
+
+
+			function start() {
+				document.querySelector(".mask").style.display = "none";
+				// 初始化数据
+				for (var r = 0; r < 5; r++) {
+					for (var c = 0; c < 5; c++) {
+						var i = r * 5 + c;
+						var v = getV();
+
+						box_data[r][c] = {
+							on: 0,
+							v: v,
+							r: r,
+							c: c,
+							set: 0
+						};
+					};
+				};
+
+				initBox(box_data);
+			}
+			start();
+
+		</script>
+	</body>
+</html>

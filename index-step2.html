@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    	<meta name="robots" content="all">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="mobile-agent" content="format=html5;url=http://ccx01.com">
+		<meta name="applicable-device" content="mobile">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name ="keywords" content="Sign,ccx01,sign,the day of sign,signXday,沙因,游戏">
+		<meta name="description" content="合到10游戏dom版">
+		<title>get10</title>
+		<style type="text/css">
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.stage {
+				position: relative;
+			    width: 550px;
+			    height: 550px;
+			    margin: 100px auto;
+			    background: #eee;
+			}
+			.box {
+				position: absolute;
+				width: 20%;
+				height: 20%;
+				border: 1px solid #ccc;
+				box-sizing: border-box;
+				transition: 1s;
+			}
+			.box[data-on="1"] {
+				-webkit-transform:translateY(-6px);
+				transform:translateY(-6px);
+				box-shadow: 0px 6px 0px rgba(0,0,0,0.3);
+			}
+			.box[data-v="1"] {
+				background: #B9F349;
+			}
+			.box[data-v="2"] {
+				background: #56C0FC;
+			}
+			.box[data-v="3"] {
+				background: #FFC85B;
+			}
+			.box[data-v="4"] {
+				background: #FF7255;
+			}
+			.c9 {
+				top: -20%;
+			}
+			.c4 {
+				top: 0;
+			}
+			.c3 {
+				top: 20%;
+			}
+			.c2 {
+				top: 40%;
+			}
+			.c1 {
+				top: 60%;
+			}
+			.c0 {
+				top: 80%;
+			}
+			.r4 {
+				left: 0;
+			}
+			.r3 {
+				left: 20%;
+			}
+			.r2 {
+				left: 40%;
+			}
+			.r1 {
+				left: 60%;
+			}
+			.r0 {
+				left: 80%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="loading">
+			<div class="ball"></div>
+		</div>
+		<div class="stage">
+			<div class="r0 c0"></div>
+		</div>
+
+		<script>
+			function getV() {
+				var v = 1;
+				if(Math.random() < 0.05) {
+					v = 4;
+				} else if(Math.random() < 0.2) {
+					v = 3;
+				} else if(Math.random() < 0.5) {
+					v = 2;
+				}
+				return v;
+			}
+
+			// 位置存储
+			// 按列存储
+			var box_data = [ [], [], [], [], [] ];
+
+			// 被选中的数据
+			var box_check = [];
+
+			function around (r, c, v) {
+				// 选择周围相同值
+				// console.log(c,r)
+				box_data[r][c].on = 1;
+				document.querySelector(".r" + r + ".c" + c).dataset.on = 1;
+
+				// 左侧
+				if(c > 0) {
+					var c1 = Math.round(c) - 1;
+					if(box_data[r][c1].v == v && box_data[r][c1].on == 0) {
+						around(r, c1, v);
+					}
+				}
+				// 右侧
+				if(c < 4) {
+					var c2 = Math.round(c) + 1;
+					if(box_data[r][c2].v == v && box_data[r][c2].on == 0) {
+						around(r, c2, v);
+					}
+				}
+				// 上侧
+				if(r > 0) {
+					var r1 = Math.round(r) - 1;
+					if(box_data[r1][c].v == v && box_data[r1][c].on == 0) {
+						around(r1, c, v);
+					}
+				}
+				// 下侧
+				if(r < 4) {
+					var r2 = Math.round(r) + 1;
+					if(box_data[r2][c].v == v && box_data[r2][c].on == 0) {
+						around(r2, c, v);
+					}
+				}
+			}
+
+			var $stage = document.querySelector(".stage");
+			function sBox(e) {
+				var r = e.dataset.r | 0;
+				var c = e.dataset.c | 0;
+				var v = e.dataset.v | 0;
+				if(box_data[r][c].on == 1) {
+					// 已激活
+
+					// 防止被误删
+					box_data[r][c].on = 2;
+					box_check = [];
+
+					for (var i = 0; i < box_data.length; i++) {
+						box_check[i] = box_check[i] || [];
+						for (var j = 0; j < box_data[i].length; j++) {
+							if(box_data[i][j].on != 1) {
+								// 先将数据存在另一个数组里
+								box_check[i].push(box_data[i][j]);
+							} else {
+
+							}
+						};
+					};
+					// console.log(box_check)
+
+					for (var m = 0; m < 5; m++) {
+						for (var n = 0; n < 5; n++) {
+							if(!box_check[m][n]) {
+								var v = getV();
+								box_check[m][n] = {
+									on: 0,
+									v: v,
+									r: m,
+									c: 9
+								};
+							} else {
+								/*box_check[m][n].r = m;
+								box_check[m][n].c = n;*/
+							}
+							if(box_check[m][n].on == 2) {
+								// box_check[m][n].on = 1;
+								box_check[m][n].v = box_check[m][n].v + 1;
+							}
+						}
+					}
+
+					moveBox(box_data, box_check);
+
+					// initBox(box_check);
+
+					/*box_data[r][c].v++;
+					box_data[r][c].on = 0;*/
+
+					/*for (var i = 0; i < box_check.length; i++) {
+						for (var j = 0; j < box_check[i].length; j++) {
+							var box = document.querySelector(".r" + box_check[i][j] + ".c" + i);
+							if(r == box_check[i][j] && c == i) {
+								box.innerHTML = Math.round(box.innerHTML) + 1;
+								box.dataset.v = Math.round(box.dataset.v) + 1;
+								box.dataset.on = 0;
+							} else {
+
+								$stage.removeChild(box);
+							}
+						}
+					};
+					box_check = [ [], [], [], [], [] ];*/
+				} else {
+					// 重置选中状态
+					for (var i = 0; i < box_data.length; i++) {
+						for (var j = 0; j < box_data[i].length; j++) {
+							box_data[i][j].on = 0;
+							document.querySelector(".r" + i + ".c" + j).dataset.on = 0;
+						};
+					};
+
+					around(r, c, v);
+
+				}
+				/*setTimeout(function(){
+
+					initBox(box_data);
+				},1000);*/
+			}
+
+
+			// 合并动画
+			function moveBox (box_data, box_check) {
+				for (var i = 0; i < box_data.length; i++) {
+					for (var j = 0; j < box_data[i].length; j++) {
+						// if(box_data[i][j].r != box_check[i][j].r || box_data[i][j].c != box_check[i][j].c) {
+							// console.log(i,j)
+							var $bc = document.querySelector(".r" + box_check[i][j].r + ".c" + box_check[i][j].c);
+							if($bc) {
+								$bc.className = "box r" + i + " c" + j;
+							} else {
+								console.log(box_data[i][j]);
+							}
+						// }
+					}
+				}
+				setTimeout(function(){
+				initBox(box_data);
+
+				},1000)
+				
+			}
+			// init
+			function initBox(arr) {
+				// console.log(arr)
+				box = "";
+				for (var i = 0; i < arr.length; i++) {
+					for (var j = 0; j < arr[i].length; j++) {
+						box += '<div data-v="' + arr[i][j].v + '" data-r="' + arr[i][j].r + '" data-c="' + arr[i][j].c + '" data-on="' + arr[i][j].on + '" class="box r' + arr[i][j].r + ' c' + arr[i][j].c + '" onclick="sBox(this)">' + arr[i][j].v + '</div>';
+					};
+				};
+				$stage.innerHTML = box;
+			}
+
+			var box = "";
+			for (var r = 0; r < 5; r++) {
+				var row = "r" + r;
+				for (var c = 0; c < 5; c++) {
+					var col = "c" + c;
+					var i = r * 5 + c;
+					var v = getV();
+					// box += '<div data-v="' + v + '" data-r="' + r + '" data-c="' + c + '" data-on="0" class="box ' + row + ' ' + col + '" onclick="sBox(this)">' + v + '</div>';
+
+					box_data[r][c] = {
+						on: 0,
+						v: v,
+						r: r,
+						c: c
+					};
+				};
+			};
+
+			initBox(box_data);
+
+			// document.querySelector(".stage").innerHTML = box;
+
+		</script>
+	</body>
+</html>
